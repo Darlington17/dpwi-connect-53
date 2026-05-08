@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
   Menu, X, Calendar, Building2, Home, Wrench, FileText, Users,
-  MapPin, Phone, Mail, Clock, Facebook, Twitter, Linkedin, Youtube,
-  Briefcase, Download, Send, Hammer,
+  MapPin, Phone, Mail, Clock,
+  Briefcase, Download, Send, Hammer, Globe,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -469,7 +469,7 @@ function Index() {
                 Building a better South Africa through sustainable infrastructure and property management.
               </p>
               <div className="flex gap-3">
-                {[Facebook, Twitter, Linkedin, Youtube].map((Icon, i) => (
+                {[Globe, Globe, Globe, Globe].map((Icon, i) => (
                   <a key={i} href="#" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-gov-gold hover:text-gov-green transition-colors">
                     <Icon size={16} />
                   </a>
