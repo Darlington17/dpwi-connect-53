@@ -14,7 +14,63 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      leave_applications: {
+        Row: {
+          address_during_leave: string | null
+          applicant_email: string
+          component: string | null
+          created_at: string
+          department: string | null
+          end_date: string
+          id: string
+          initials: string
+          leave_type: string
+          persal_number: string
+          reason: string | null
+          signature: string | null
+          start_date: string
+          surname: string
+          tel: string | null
+          working_days: number | null
+        }
+        Insert: {
+          address_during_leave?: string | null
+          applicant_email: string
+          component?: string | null
+          created_at?: string
+          department?: string | null
+          end_date: string
+          id?: string
+          initials: string
+          leave_type: string
+          persal_number: string
+          reason?: string | null
+          signature?: string | null
+          start_date: string
+          surname: string
+          tel?: string | null
+          working_days?: number | null
+        }
+        Update: {
+          address_during_leave?: string | null
+          applicant_email?: string
+          component?: string | null
+          created_at?: string
+          department?: string | null
+          end_date?: string
+          id?: string
+          initials?: string
+          leave_type?: string
+          persal_number?: string
+          reason?: string | null
+          signature?: string | null
+          start_date?: string
+          surname?: string
+          tel?: string | null
+          working_days?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
