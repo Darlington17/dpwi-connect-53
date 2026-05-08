@@ -19,6 +19,9 @@
  */
 
 @theme inline {
+  --color-gov-green: var(--gov-green);
+  --color-gov-gold: var(--gov-gold);
+  --color-gov-dark-grey: var(--gov-dark-grey);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -64,7 +67,11 @@
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --foreground: oklch(0.27 0.02 250);
+  --gov-green: oklch(0.40 0.10 155);
+  --gov-gold: oklch(0.78 0.14 80);
+  --gov-dark-grey: oklch(0.27 0.01 250);
+  --shadow: 0 4px 20px oklch(0 0 0 / 0.08);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
   --popover: oklch(1 0 0);
@@ -141,4 +148,14 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
   }
+}
+
+.fade-in { opacity: 0; transform: translateY(30px); transition: opacity .8s ease-out, transform .8s ease-out; }
+.fade-in.appear { opacity: 1; transform: translateY(0); }
+
+@media print {
+  body * { visibility: hidden; }
+  #leave-portal, #leave-portal * { visibility: visible; }
+  #leave-portal { position: absolute; top: 0; left: 0; width: 100%; }
+  header, footer, button { display: none !important; }
 }
