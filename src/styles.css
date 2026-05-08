@@ -19,6 +19,9 @@
  */
 
 @theme inline {
+  --color-gov-green: var(--gov-green);
+  --color-gov-gold: var(--gov-gold);
+  --color-gov-dark-grey: var(--gov-dark-grey);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
