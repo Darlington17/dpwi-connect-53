@@ -13,6 +13,6 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    base: '/dpwi-connect-53/',
+    base: '/dpwi-connect-53',
   },
 });
