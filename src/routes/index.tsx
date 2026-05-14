@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Calendar, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import publicWorksLogo from "@/assets/public-works-logo.png";
+import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -62,6 +63,7 @@ function LeavePortal() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastSubmission, setLastSubmission] = useState<FormState | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -108,6 +110,7 @@ function LeavePortal() {
       }
 
       setDone(true);
+      setLastSubmission(form);
       setForm(empty);
     } catch (err) {
       console.error(err);
@@ -115,6 +118,63 @@ function LeavePortal() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const downloadPdf = (data: FormState) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let y = 20;
+
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text("Department of Public Works and Infrastructure", pageWidth / 2, y, { align: "center" });
+    y += 7;
+    doc.setFontSize(13);
+    doc.text("Leave of Absence Application", pageWidth / 2, y, { align: "center" });
+    y += 10;
+    doc.setDrawColor(0);
+    doc.line(15, y, pageWidth - 15, y);
+    y += 8;
+
+    const rows: [string, string][] = [
+      ["Surname", data.surname],
+      ["Initials", data.initials],
+      ["PERSAL Number", data.persal_number],
+      ["Email", data.applicant_email],
+      ["Telephone", data.tel],
+      ["Department", data.department],
+      ["Component / Office", data.component],
+      ["Address During Leave", data.address_during_leave],
+      ["Type of Leave", data.leave_type],
+      ["Working Days", data.working_days],
+      ["Start Date", data.start_date],
+      ["End Date", data.end_date],
+      ["Reason / Motivation", data.reason],
+      ["Signature", data.signature],
+      ["Submitted", new Date().toLocaleString()],
+    ];
+
+    doc.setFontSize(11);
+    rows.forEach(([label, value]) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(`${label}:`, 15, y);
+      doc.setFont("helvetica", "normal");
+      const text = doc.splitTextToSize(value || "—", pageWidth - 70);
+      doc.text(text, 70, y);
+      y += Math.max(7, text.length * 6);
+      if (y > 270) { doc.addPage(); y = 20; }
+    });
+
+    y += 6;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    const cert = doc.splitTextToSize(
+      "Certification: I certify that the information provided is correct. I understand that if I fail to return to duty on the first working day following the expiry of my leave, disciplinary action may be taken.",
+      pageWidth - 30
+    );
+    doc.text(cert, 15, y);
+
+    doc.save(`leave-application-${data.surname || "form"}-${Date.now()}.pdf`);
   };
 
   return (
@@ -156,12 +216,22 @@ function LeavePortal() {
                 Your leave application has been received. A confirmation email has been
                 sent to your address and to HR.
               </p>
-              <button
-                onClick={() => setDone(false)}
-                className="px-6 py-3 rounded bg-gov-green text-white font-semibold hover:bg-gov-green/90"
-              >
-                Submit Another Application
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                {lastSubmission && (
+                  <button
+                    onClick={() => downloadPdf(lastSubmission)}
+                    className="px-6 py-3 rounded border-2 border-gov-green text-gov-green font-semibold hover:bg-gov-green hover:text-white"
+                  >
+                    Download PDF Copy
+                  </button>
+                )}
+                <button
+                  onClick={() => setDone(false)}
+                  className="px-6 py-3 rounded bg-gov-green text-white font-semibold hover:bg-gov-green/90"
+                >
+                  Submit Another Application
+                </button>
+              </div>
             </div>
           ) : (
             <form
