@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, Send, Hammer, CheckCircle2, Loader2 } from "lucide-react";
+import { Calendar, Send, Hammer, CheckCircle2, Loader2, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -61,6 +62,8 @@ function LeavePortal() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState<FormState | null>(null);
+  const [submittedAt, setSubmittedAt] = useState<Date | null>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -107,6 +110,8 @@ function LeavePortal() {
       }
 
       setDone(true);
+      setSubmitted(form);
+      setSubmittedAt(new Date());
       setForm(empty);
     } catch (err) {
       console.error(err);
@@ -114,6 +119,86 @@ function LeavePortal() {
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const downloadPDF = () => {
+    if (!submitted || !submittedAt) return;
+    const doc = new jsPDF();
+    const margin = 15;
+    let y = 20;
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.setTextColor(0, 99, 65);
+    doc.text("APPLICATION FOR LEAVE OF ABSENCE", 105, y, { align: "center" });
+    y += 6;
+    doc.setFontSize(10);
+    doc.text("Department of Public Works and Infrastructure", 105, y, { align: "center" });
+    y += 4;
+    doc.setDrawColor(255, 184, 28);
+    doc.setLineWidth(0.8);
+    doc.line(margin, y, 210 - margin, y);
+    y += 8;
+
+    doc.setTextColor(40, 40, 40);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+
+    const section = (title: string) => {
+      y += 2;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 99, 65);
+      doc.text(title, margin, y);
+      y += 6;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(40, 40, 40);
+    };
+
+    const row = (label: string, value: string) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(`${label}:`, margin, y);
+      doc.setFont("helvetica", "normal");
+      const lines = doc.splitTextToSize(value || "—", 120);
+      doc.text(lines, margin + 60, y);
+      y += 6 * lines.length;
+    };
+
+    section("Employee Details");
+    row("Surname", submitted.surname);
+    row("Initials", submitted.initials);
+    row("PERSAL Number", submitted.persal_number);
+    row("Email", submitted.applicant_email);
+    row("Telephone", submitted.tel);
+    row("Department", submitted.department);
+    row("Component / Office", submitted.component);
+    row("Address During Leave", submitted.address_during_leave);
+
+    section("Leave Details");
+    row("Type of Leave", submitted.leave_type);
+    row("Start Date", submitted.start_date);
+    row("End Date", submitted.end_date);
+    row("Working Days", submitted.working_days);
+    row("Reason / Motivation", submitted.reason);
+
+    section("Certification");
+    row("Signature", submitted.signature);
+    row("Submitted At", submittedAt.toLocaleString());
+
+    y += 8;
+    doc.setFontSize(8);
+    doc.setTextColor(120, 120, 120);
+    doc.text(
+      "This document serves as proof of submission for your leave application.",
+      105,
+      y,
+      { align: "center" }
+    );
+
+    const dateStr = submittedAt.toISOString().slice(0, 10);
+    const safeSurname = (submitted.surname || "Applicant").replace(/[^a-zA-Z0-9]/g, "_");
+    doc.save(`Leave_Application_${safeSurname}_${dateStr}.pdf`);
   };
 
   return (
@@ -153,12 +238,20 @@ function LeavePortal() {
                 Your leave application has been received. A confirmation email has been
                 sent to your address and to HR.
               </p>
-              <button
-                onClick={() => setDone(false)}
-                className="px-6 py-3 rounded bg-gov-green text-white font-semibold hover:bg-gov-green/90"
-              >
-                Submit Another Application
-              </button>
+              <div className="flex flex-wrap gap-3 justify-center">
+                <button
+                  onClick={downloadPDF}
+                  className="px-6 py-3 rounded bg-gov-gold text-gov-green font-semibold hover:bg-gov-gold/90 flex items-center gap-2"
+                >
+                  <Download size={18} /> Download PDF Proof
+                </button>
+                <button
+                  onClick={() => { setDone(false); setSubmitted(null); }}
+                  className="px-6 py-3 rounded bg-gov-green text-white font-semibold hover:bg-gov-green/90"
+                >
+                  Submit Another Application
+                </button>
+              </div>
             </div>
           ) : (
             <form
