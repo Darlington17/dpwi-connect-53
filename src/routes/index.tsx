@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Calendar, Send, Hammer, CheckCircle2, Loader2 } from "lucide-react";
+import { Calendar, Send, CheckCircle2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import publicWorksLogo from "@/assets/public-works-logo.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -121,11 +122,13 @@ function LeavePortal() {
       {/* Header */}
       <header className="bg-white shadow-md">
         <div className="w-[90%] max-w-4xl mx-auto h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 font-bold text-gov-green">
-            <span className="w-10 h-10 rounded-full bg-gov-gold flex items-center justify-center text-gov-green">
-              <Hammer size={20} />
-            </span>
-            <span>DPWI Leave Portal</span>
+          <div className="flex items-center gap-3 font-bold text-gov-green">
+            <img
+              src={publicWorksLogo}
+              alt="Department of Public Works & Infrastructure - Free State Province"
+              className="h-12 w-auto"
+            />
+            <span className="hidden md:inline">Leave Portal</span>
           </div>
           <span className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
             <Calendar size={16} /> Department of Public Works and Infrastructure
